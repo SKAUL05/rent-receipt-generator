@@ -1,10 +1,12 @@
 
-const Button = ({text,color}) => {
+const Button = props => {
+    console.log(props.style);
     return (
-        <div>
-            <button style={{backgroundColor:color}} className="btn">{text}</button>
-        </div>
-    )
-}
+      <button style={props.style} className={ props.type === "primary" ? "btn btn-primary" : "btn btn-secondary"} onClick={props.action}>
+        {props.title}
+      </button>
+    );
+  };
+  
 
 export default Button
