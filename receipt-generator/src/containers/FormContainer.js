@@ -3,6 +3,10 @@ import Input from "../components/Input";
 import TextArea from "../components/TextArea";
 import React, { Component } from "react";
 import Header from "../components/Header";
+import GenerateDocument from "../components/GenerateDocument";
+import  { pdf } from '@react-pdf/renderer';
+import { saveAs } from 'file-saver';
+
 
 class FormContainer extends Component {
     constructor(props) {
@@ -80,11 +84,16 @@ class FormContainer extends Component {
     }
   
   
-    handleFormSubmit(e) {
+    async handleFormSubmit(e) {
       e.preventDefault();
       let userData = this.state.newUser;
-      console.log(userData)
-  
+      console.log(userData);
+      const doc = <GenerateDocument {...userData}/>;
+      const asPdf = pdf([]); // {} is important, throws without an argument
+      asPdf.updateContainer(doc);
+      const blob = await asPdf.toBlob();
+      saveAs(blob, 'document.pdf');
+      
       // fetch("http://example.com", {
       //   method: "POST",
       //   body: JSON.stringify(userData),
