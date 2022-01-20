@@ -16,7 +16,11 @@ class FormContainer extends Component {
         newUser: {
           name: "",
           rent: "",
-          address: ""
+          address: "",
+          owner:"",
+          pan:"",
+          startDate:"",
+          endDate:""
         }
       };
       this.handleAddress = this.handleAddress.bind(this);
@@ -158,7 +162,7 @@ class FormContainer extends Component {
             inputType={"text"}
             name={"pan"}
             title={"Owner PAN number"}
-            value={this.state.newUser.owner}
+            value={this.state.newUser.pan}
             placeholder={"Enter your house owner's PAN number"}
             handleChange={this.handleInput}
           />{" "}
