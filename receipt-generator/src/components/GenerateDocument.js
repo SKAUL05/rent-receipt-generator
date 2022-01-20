@@ -22,10 +22,11 @@ const GenerateDocument = props => (
       <View style={styles.section}>
         <Text style={{ fontSize: 15 }}>RENT RECEIPT</Text>
         <Text style={{ fontSize: 13 , paddingTop: 5}}>Jan 2022</Text>
-        <Text style={{ fontSize: 13 , textAlign: 'right', paddingBottom: '5%', paddingRight: '7%'}}> Receipt 1</Text>
-        {/* <Text style={"text-align: right;padding-right: 10%;"> Receipt 1 </p>
-        <p>Received sum of INR ₹23 from SK towards the rent of property located at SS for the period Jan 2022</p> 
-        <p style="padding-top: 2%;"><b>Signature</b> <br/><br/> SS <b>(Landlord)</b> <br/><br/> DDDD <b>(PAN Number)</b></p> */}
+        <Text style={{ fontSize: 13 , textAlign: 'right', paddingBottom: '10%', paddingRight: '7%'}}> Receipt 1</Text>
+        <Text style={{ fontSize: 12 , paddingTop: '25%'}}>Received sum of INR ₹23 from SK towards the rent of property located at SS for the period Jan 2022</Text>
+        <Text style={{ fontSize: 13 , paddingTop: '35%'}} >Signature</Text>
+        <Text style={{ fontSize: 13 , paddingTop: 5}}>SKAUL05 (Landlord)</Text>
+        <Text style={{ fontSize: 13 , paddingTop: 5}}>SKAUL05 (PAN Number)</Text>
       </View>
     </Page>
   </Document>
