@@ -21,7 +21,8 @@ class FormContainer extends Component {
           pan:"",
           startDate:"",
           endDate:""
-        }
+        },
+        errors:{}
       };
       this.handleAddress = this.handleAddress.bind(this);
       this.handleRent = this.handleRent.bind(this);
@@ -90,26 +91,15 @@ class FormContainer extends Component {
   
     async handleFormSubmit(e) {
       e.preventDefault();
-      let userData = this.state.newUser;
-      console.log(userData);
-      const doc = <GenerateDocument {...userData}/>;
-      const asPdf = pdf([]); // {} is important, throws without an argument
-      asPdf.updateContainer(doc);
-      const blob = await asPdf.toBlob();
-      saveAs(blob, (userData.name.replace(" ","_").toLowerCase() + '.pdf'));
-      
-      // fetch("http://example.com", {
-      //   method: "POST",
-      //   body: JSON.stringify(userData),
-      //   headers: {
-      //     Accept: "application/json",
-      //     "Content-Type": "application/json"
-      //   }
-      // }).then(response => {
-      //   response.json().then(data => {
-      //     console.log("Successful" + data);
-      //   });
-      // });
+      if (this.validateForm()){
+          let userData = this.state.newUser;
+          console.log(userData);
+          const doc = <GenerateDocument {...userData}/>;
+          const asPdf = pdf([]); // {} is important, throws without an argument
+          asPdf.updateContainer(doc);
+          const blob = await asPdf.toBlob();
+          saveAs(blob, (userData.name.replace(" ","_").toLowerCase() + '.pdf'));
+      }
     }
   
     handleClearForm(e) {
@@ -123,48 +113,91 @@ class FormContainer extends Component {
           pan:"",
           startDate:"",
           endDate:""
-        }
+        },
+        errors:{}
       });
     }
-  
+
+    validateForm(){
+      let userData = this.state.newUser;
+      let formIsValid = true;
+      let errors = {};
+
+      if (!userData["name"]){
+        formIsValid = false;
+        errors["name"] = "Please enter your name";
+      }
+
+      if (!userData["owner"]){
+        formIsValid = false;
+        errors["owner"] = "Please enter owner's name";
+      }
+      
+      if (!userData["rent"]){
+        formIsValid = false;
+        errors["rent"] = "Please enter monthly rent";
+      }
+
+      if (!userData["startDate"]){
+        formIsValid = false;
+        errors["startDate"] = "Rent Start Date is required";
+      }
+
+      if (!userData["endDate"]){
+        formIsValid = false;
+        errors["endDate"] = "Rent End Date is required";
+      }
+      if (!userData["address"]){
+        formIsValid = false;
+        errors["address"] = "Property address is required";
+      }
+      this.setState({
+        errors: errors
+      });
+      return formIsValid;
+    }
+    
     render() {
+
       return (
         <form className="container-fluid" onSubmit={this.handleFormSubmit}>
-        <Header/>
           <Input
-            inputType={"text"}
+            inputtype={"text"}
             title={"Full Name"}
             name={"name"}
             value={this.state.newUser.name}
             placeholder={"Enter your name"}
-            handleChange={this.handleInput}
+            handle={this.handleInput}
           />{" "}
+          <span className="error text-danger">{this.state.errors.name}</span>
           {/* Name of the user */}
           <Input
-            inputType={"number"}
+            inputtype={"number"}
             name={"rent"}
             title={"Monthly Rent"}
             value={this.state.newUser.rent}
             placeholder={"Enter your monthly rent"}
-            handleChange={this.handleRent}
+            handle={this.handleRent}
           />{" "}
+          <span className="error text-danger">{this.state.errors.rent}</span>
           {/* Rent */}
           <Input
-            inputType={"text"}
+            inputtype={"text"}
             name={"owner"}
             title={"Owner Name"}
             value={this.state.newUser.owner}
             placeholder={"Enter your house owner name"}
-            handleChange={this.handleInput}
+            handle={this.handleInput}
           />{" "}
+          <span className="error text-danger">{this.state.errors.owner}</span>
           {/* Owner */}
           <Input
-            inputType={"text"}
+            inputtype={"text"}
             name={"pan"}
             title={"Owner PAN number"}
             value={this.state.newUser.pan}
             placeholder={"Enter your house owner's PAN number"}
-            handleChange={this.handleInput}
+            handle={this.handleInput}
           />{" "}
           {/* Owner PAN */}
           <TextArea
@@ -172,27 +205,30 @@ class FormContainer extends Component {
             rows={2}
             value={this.state.newUser.address}
             name={"address"}
-            handleChange={this.handleAddress}
+            handle={this.handleAddress}
             placeholder={"Enter address of rented property"}
           />
+          <span className="error text-danger">{this.state.errors.address}</span>
           {/* Address */}
           <Input
-            inputType={"date"}
+            inputtype={"date"}
             name={"startDate"}
             title={"Start Date"}
             value={this.state.newUser.startDate}
             placeholder={"Enter Start Date"}
-            handleChange={this.handleInput}
+            handle={this.handleInput}
           />{" "}
+          <span className="error text-danger">{this.state.errors.startDate}</span> 
           {/* Start Date */}
           <Input
-            inputType={"date"}
+            inputtype={"date"}
             name={"endDate"}
             title={"End Date"}
             value={this.state.newUser.endDate}
             placeholder={"Enter End Date"}
-            handleChange={this.handleInput}
+            handle={this.handleInput}
           />{" "}
+          <span className="error text-danger">{this.state.errors.endDate}</span><br/>
           {/* End Date */}
           <Button
             action={this.handleFormSubmit}
