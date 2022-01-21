@@ -2,7 +2,6 @@ import Button from "../components/Button";
 import Input from "../components/Input";
 import TextArea from "../components/TextArea";
 import React, { Component } from "react";
-import Header from "../components/Header";
 import GenerateDocument from "../components/GenerateDocument";
 import  { pdf } from '@react-pdf/renderer';
 import { saveAs } from 'file-saver';
@@ -160,7 +159,7 @@ class FormContainer extends Component {
     render() {
 
       return (
-        <form className="container-fluid" onSubmit={this.handleFormSubmit}>
+        <form className="container-fluid"  onSubmit={this.handleFormSubmit}>
           <Input
             inputtype={"text"}
             title={"Full Name"}
