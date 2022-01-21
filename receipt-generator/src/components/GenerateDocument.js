@@ -1,4 +1,5 @@
-import { Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
+import { Page, Document, StyleSheet } from '@react-pdf/renderer';
+import GenerateTable from './GenerateTable';
 
 // Create styles
 const styles = StyleSheet.create({
@@ -11,26 +12,20 @@ const styles = StyleSheet.create({
     padding: 10,
     flexGrow: 1,
     borderStyle: 'solid',
-    borderWidth: 1,
-    maxHeight: '35%'
+    borderWidth: 1
   }
 });
 
+
+
 // Create Document Component
-const GenerateDocument = props => (
+const GenerateDocument = props => {  
+  return(
   <Document>
-    <Page size="A4" style={styles.page}>
-      <View style={styles.section}>
-        <Text style={{ fontSize: 14 }}>RENT RECEIPT</Text>
-        <Text style={{ fontSize: 13 , paddingTop: 5}}>Jan 2022</Text>
-        <Text style={{ fontSize: 13 , textAlign: 'right', paddingBottom: '10%', paddingRight: '7%'}}> Receipt 1</Text>
-        <Text style={{ fontSize: 12 , paddingTop: '2%'}}>Received sum of INR {props.rent} from {props.name} towards the rent of property located at {props.address} for the period Jan 2022</Text>
-        <Text style={{ fontSize: 13 , paddingTop: '10%'}} >Signature</Text>
-        <Text style={{ fontSize: 13 , paddingTop: 8}}>{props.owner} (Landlord)</Text>
-        <Text style={{ fontSize: 13 , paddingTop: 8}}>{props.pan} (PAN Number)</Text>
-      </View>
+    <Page size="A4" style={styles.page} >
+      <GenerateTable table={props} />
     </Page>
   </Document>
-);
+  )};
 
 export default GenerateDocument;
