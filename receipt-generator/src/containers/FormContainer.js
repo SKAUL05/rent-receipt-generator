@@ -121,6 +121,7 @@ class FormContainer extends Component {
       let userData = this.state.newUser;
       let formIsValid = true;
       let errors = {};
+      
 
       if (!userData["name"]){
         formIsValid = false;
@@ -149,6 +150,14 @@ class FormContainer extends Component {
       if (!userData["address"]){
         formIsValid = false;
         errors["address"] = "Property address is required";
+      }
+      if (userData['startDate'] && userData['endDate']){
+        var dateStart = new Date(userData['startDate']);
+        var dateEnd = new Date(userData['endDate']);
+        if (dateStart>dateEnd){
+          errors["startDate"] ="Start Date is greater than End Date"
+          formIsValid = false;
+        }
       }
       this.setState({
         errors: errors
