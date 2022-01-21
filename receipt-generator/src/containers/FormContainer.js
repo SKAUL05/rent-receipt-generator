@@ -96,7 +96,7 @@ class FormContainer extends Component {
       const asPdf = pdf([]); // {} is important, throws without an argument
       asPdf.updateContainer(doc);
       const blob = await asPdf.toBlob();
-      saveAs(blob, 'document.pdf');
+      saveAs(blob, (userData.name.replace(" ","_").toLowerCase() + '.pdf'));
       
       // fetch("http://example.com", {
       //   method: "POST",
