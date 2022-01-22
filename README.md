@@ -1,7 +1,7 @@
 # Rent Receipt Generator
 
 ### A React App to generate rent receipts online
-![View Demo](https://github.com/SKAUL05/rent-receipt-generator/blob/master/assets/rent_image.png)
+![Form](https://github.com/SKAUL05/rent-receipt-generator/blob/master/assets/rent_image.png)
 
 ### How to run?
 
