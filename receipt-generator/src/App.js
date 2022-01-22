@@ -5,7 +5,7 @@ function App() {
   return (
     <div className="container" style={{padding:10, display:'flex'}}>
       <div className="card bg-light border-dark w-100">
-        <div class="card-body">
+        <div className="card-body">
         <Header/>
         <FormContainer />
         </div>

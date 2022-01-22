@@ -98,6 +98,18 @@ class FormContainer extends Component {
           asPdf.updateContainer(doc);
           const blob = await asPdf.toBlob();
           saveAs(blob, (userData.name.replace(" ","_").toLowerCase() + '.pdf'));
+          this.setState({
+            newUser: {
+              name: "",
+              address: "",
+              rent: "",
+              owner:"",
+              pan:"",
+              startDate:"",
+              endDate:""
+            },
+            errors:{}
+          });
       }
     }
   
@@ -133,7 +145,7 @@ class FormContainer extends Component {
         errors["owner"] = "Please enter owner's name";
       }
       
-      if (!userData["rent"]){
+      if (!userData["rent"] && userData["rent"] < 1){
         formIsValid = false;
         errors["rent"] = "Please enter monthly rent";
       }
