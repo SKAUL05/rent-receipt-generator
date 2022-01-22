@@ -37,7 +37,7 @@ const GenerateTable = ({table}) => {
         <Text style={{ fontSize: 12 }}>RENT RECEIPT</Text>
         <Text style={{ fontSize: 11 , paddingTop: 5}}>{days}</Text>
         <Text style={{ fontSize: 11 , textAlign: 'right', paddingRight: '7%'}}> Receipt {(index + 1).toString()}</Text>
-        <Text style={{ fontSize: 11,  paddingTop: '7%', paddingRight:'2%' }}>Received sum of INR {table.rent} from {table.name} towards the rent of property located at {table.address} for the period {days}</Text>
+        <Text style={{ fontSize: 11,  paddingTop: '7%', paddingRight:'3%' }}>Received sum of INR {table.rent} from {table.name} towards the rent of property located at {table.address} for the period {days}</Text>
         <Text style={{ fontSize: 11 , paddingTop: '10%'}} >Signature</Text>
         <Text style={{ fontSize: 11 , paddingTop: 8}}>{table.owner} (Landlord)</Text>
         <Text style={{ fontSize: 11 , paddingTop: 8}}>{table.pan} (PAN Number)</Text>
