@@ -1,277 +1,343 @@
-import Button from "../components/Button";
-import Input from "../components/Input";
-import TextArea from "../components/TextArea";
-import React, { Component } from "react";
-import GenerateDocument from "../components/GenerateDocument";
-import  { pdf } from '@react-pdf/renderer';
+import React, { useState, useEffect, useCallback } from 'react';
+import { pdf } from '@react-pdf/renderer';
 import { saveAs } from 'file-saver';
+import Input from '../components/Input';
+import TextArea from '../components/TextArea';
+import Button from '../components/Button';
+import Select from '../components/Select';
+import GenerateDocument from '../components/GenerateDocument';
 
+/* ── Constants ──────────────────────────────────────────── */
+const LS_KEY = 'rrg_form_data';
 
-class FormContainer extends Component {
-    constructor(props) {
-      super(props);
-  
-      this.state = {
-        newUser: {
-          name: "",
-          rent: "",
-          address: "",
-          owner:"",
-          pan:"",
-          startDate:"",
-          endDate:""
-        },
-        errors:{}
-      };
-      this.handleAddress = this.handleAddress.bind(this);
-      this.handleRent = this.handleRent.bind(this);
-      this.handleFullName = this.handleFullName.bind(this);
-      this.handleFormSubmit = this.handleFormSubmit.bind(this);
-      this.handleClearForm = this.handleClearForm.bind(this);
-      this.handleInput = this.handleInput.bind(this);
+const CURRENCY_OPTIONS = [
+  { value: 'INR', label: '₹ INR — Indian Rupee' },
+  { value: 'USD', label: '$ USD — US Dollar' },
+  { value: 'EUR', label: '€ EUR — Euro' },
+  { value: 'GBP', label: '£ GBP — British Pound' },
+  { value: 'AED', label: 'AED — UAE Dirham' },
+];
+
+const PAYMENT_OPTIONS = [
+  { value: 'Cash',          label: '💵 Cash' },
+  { value: 'Cheque',        label: '🏦 Cheque' },
+  { value: 'UPI',           label: '📱 UPI' },
+  { value: 'Bank Transfer', label: '🔁 Bank Transfer' },
+  { value: 'NEFT/IMPS',    label: '📤 NEFT / IMPS' },
+];
+
+const EMPTY_FORM = {
+  name:                '',
+  rent:                '',
+  owner:               '',
+  pan:                 '',
+  address:             '',
+  startDate:           '',
+  endDate:             '',
+  currency:            'INR',
+  paymentMode:         'Cash',
+  receiptStartNumber:  '1',
+};
+
+/* ── PAN validation (Indian format: ABCDE1234F) ─────────── */
+const PAN_REGEX = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+
+/* ── Count months between two dates ────────────────────── */
+function countMonths(startDate, endDate) {
+  if (!startDate || !endDate) return 0;
+  const s = new Date(startDate);
+  const e = new Date(endDate);
+  if (s > e) return 0;
+  return (e.getFullYear() - s.getFullYear()) * 12 + (e.getMonth() - s.getMonth()) + 1;
+}
+
+/* ══════════════════════════════════════════════════════════
+   FormContainer
+   ══════════════════════════════════════════════════════════ */
+const FormContainer = ({ onFormChange }) => {
+  /* ── State ── */
+  const [form, setForm] = useState(() => {
+    try {
+      const saved = localStorage.getItem(LS_KEY);
+      return saved ? { ...EMPTY_FORM, ...JSON.parse(saved) } : EMPTY_FORM;
+    } catch {
+      return EMPTY_FORM;
     }
-  
-    /* This lifecycle hook gets executed when the component mounts */
-  
-    handleFullName(e) {
-      let value = e.target.value;
-      this.setState(
-        prevState => ({
-          newUser: {
-            ...prevState.newUser,
-            name: value
-          }
-        }),
-        () => console.log(this.state.newUser)
-      );
+  });
+
+  const [errors,  setErrors]  = useState({});
+  const [loading, setLoading] = useState(false);
+
+  /* ── Persist to localStorage on every change ── */
+  useEffect(() => {
+    localStorage.setItem(LS_KEY, JSON.stringify(form));
+  }, [form]);
+
+  /* ── Notify parent for live preview ── */
+  useEffect(() => {
+    const monthCount = countMonths(form.startDate, form.endDate);
+    if (
+      form.name && form.owner && form.rent &&
+      form.address && form.startDate && form.endDate &&
+      monthCount > 0
+    ) {
+      onFormChange({ ...form });
+    } else {
+      onFormChange(null);
     }
-  
-    handleRent(e) {
-      let value = e.target.value;
-      this.setState(
-        prevState => ({
-          newUser: {
-            ...prevState.newUser,
-            rent: value
-          }
-        }),
-        () => console.log(this.state.newUser)
-      );
+  }, [form, onFormChange]);
+
+  /* ── Generic field handler ── */
+  const handleInput = useCallback((e) => {
+    const { name, value } = e.target;
+    setForm(prev => ({ ...prev, [name]: value }));
+    /* Clear error for this field once user starts typing */
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: '' }));
     }
-  
-    handleInput(e) {
-      let value = e.target.value;
-      let name = e.target.name;
-      this.setState(
-        prevState => ({
-          newUser: {
-            ...prevState.newUser,
-            [name]: value
-          }
-        }),
-        () => console.log(this.state.newUser)
-      );
-    }
-  
-    handleAddress(e) {
-      console.log("Inside handleTextArea");
-      let value = e.target.value;
-      this.setState(
-        prevState => ({
-          newUser: {
-            ...prevState.newUser,
-            address: value
-          }
-        }),
-        () => console.log(this.state.newUser)
-      );
-    }
-  
-  
-    async handleFormSubmit(e) {
-      e.preventDefault();
-      if (this.validateForm()){
-          let userData = this.state.newUser;
-          console.log(userData);
-          const doc = <GenerateDocument {...userData}/>;
-          const asPdf = pdf([]); // {} is important, throws without an argument
-          asPdf.updateContainer(doc);
-          const blob = await asPdf.toBlob();
-          saveAs(blob, (userData.name.replace(" ","_").toLowerCase() + '.pdf'));
-          this.setState({
-            newUser: {
-              name: "",
-              address: "",
-              rent: "",
-              owner:"",
-              pan:"",
-              startDate:"",
-              endDate:""
-            },
-            errors:{}
-          });
-      }
-    }
-  
-    handleClearForm(e) {
-      e.preventDefault();
-      this.setState({
-        newUser: {
-          name: "",
-          address: "",
-          rent: "",
-          owner:"",
-          pan:"",
-          startDate:"",
-          endDate:""
-        },
-        errors:{}
-      });
+  }, [errors]);
+
+  /* ── Validation ── */
+  const validateForm = (data) => {
+    const e = {};
+
+    if (!data.name.trim()) {
+      e.name = 'Tenant name is required';
     }
 
-    validateForm(){
-      let userData = this.state.newUser;
-      let formIsValid = true;
-      let errors = {};
-      
-
-      if (!userData["name"]){
-        formIsValid = false;
-        errors["name"] = "Please enter your name";
-      }
-
-      if (!userData["owner"]){
-        formIsValid = false;
-        errors["owner"] = "Please enter owner's name";
-      }
-      
-      if (!userData["rent"] && userData["rent"] < 1){
-        formIsValid = false;
-        errors["rent"] = "Please enter monthly rent";
-      }
-
-      if (!userData["startDate"]){
-        formIsValid = false;
-        errors["startDate"] = "Rent Start Date is required";
-      }
-
-      if (!userData["endDate"]){
-        formIsValid = false;
-        errors["endDate"] = "Rent End Date is required";
-      }
-      if (!userData["address"]){
-        formIsValid = false;
-        errors["address"] = "Property address is required";
-      }
-      if (userData['startDate'] && userData['endDate']){
-        var dateStart = new Date(userData['startDate']);
-        var dateEnd = new Date(userData['endDate']);
-        if (dateStart>dateEnd){
-          errors["startDate"] ="Start Date is greater than End Date"
-          formIsValid = false;
-        }
-      }
-      this.setState({
-        errors: errors
-      });
-      return formIsValid;
+    if (!data.owner.trim()) {
+      e.owner = "Landlord's name is required";
     }
-    
-    render() {
 
-      return (
-        <form className="container-fluid"  onSubmit={this.handleFormSubmit}>
-          <Input
-            inputtype={"text"}
-            title={"Full Name"}
-            name={"name"}
-            value={this.state.newUser.name}
-            placeholder={"Enter your name"}
-            handle={this.handleInput}
-          />{" "}
-          <span className="error text-danger">{this.state.errors.name}</span>
-          {/* Name of the user */}
-          <Input
-            inputtype={"number"}
-            name={"rent"}
-            title={"Monthly Rent"}
-            value={this.state.newUser.rent}
-            placeholder={"Enter your monthly rent"}
-            handle={this.handleRent}
-          />{" "}
-          <span className="error text-danger">{this.state.errors.rent}</span>
-          {/* Rent */}
-          <Input
-            inputtype={"text"}
-            name={"owner"}
-            title={"Owner Name"}
-            value={this.state.newUser.owner}
-            placeholder={"Enter your house owner name"}
-            handle={this.handleInput}
-          />{" "}
-          <span className="error text-danger">{this.state.errors.owner}</span>
-          {/* Owner */}
-          <Input
-            inputtype={"text"}
-            name={"pan"}
-            title={"Owner PAN number"}
-            value={this.state.newUser.pan}
-            placeholder={"Enter your house owner's PAN number"}
-            handle={this.handleInput}
-          />{" "}
-          {/* Owner PAN */}
-          <TextArea
-            title={"Address"}
-            rows={2}
-            value={this.state.newUser.address}
-            name={"address"}
-            handle={this.handleAddress}
-            placeholder={"Enter address of rented property"}
-          />
-          <span className="error text-danger">{this.state.errors.address}</span>
-          {/* Address */}
-          <Input
-            inputtype={"date"}
-            name={"startDate"}
-            title={"Start Date"}
-            value={this.state.newUser.startDate}
-            placeholder={"Enter Start Date"}
-            handle={this.handleInput}
-          />{" "}
-          <span className="error text-danger">{this.state.errors.startDate}</span> 
-          {/* Start Date */}
-          <Input
-            inputtype={"date"}
-            name={"endDate"}
-            title={"End Date"}
-            value={this.state.newUser.endDate}
-            placeholder={"Enter End Date"}
-            handle={this.handleInput}
-          />{" "}
-          <span className="error text-danger">{this.state.errors.endDate}</span><br/>
-          {/* End Date */}
-          <Button
-            action={this.handleFormSubmit}
-            type={"primary"}
-            title={"Submit"}
-            style={buttonStyle}
-          />{" "}
-          {/*Submit */}
-          <Button
-            action={this.handleClearForm}
-            type={"secondary"}
-            title={"Clear"}
-            style={buttonStyle}
-          />{" "}
-          {/* Clear the form */}
-        </form>
-      );
+    /* Bug fix: was && instead of ||; zero or empty rent are both invalid */
+    if (!data.rent || Number(data.rent) < 1) {
+      e.rent = 'Monthly rent must be at least ₹1';
     }
-  }
-  
-  const buttonStyle = {
-    margin: "10px 10px 10px 10px"
+
+    if (!data.startDate) {
+      e.startDate = 'Rent start date is required';
+    }
+
+    if (!data.endDate) {
+      e.endDate = 'Rent end date is required';
+    }
+
+    if (data.startDate && data.endDate) {
+      const s = new Date(data.startDate);
+      const en = new Date(data.endDate);
+      if (s > en) {
+        e.startDate = 'Start date cannot be after end date';
+      }
+    }
+
+    if (!data.address.trim()) {
+      e.address = 'Property address is required';
+    }
+
+    /* PAN — optional but must match format if provided */
+    if (data.pan && !PAN_REGEX.test(data.pan.trim().toUpperCase())) {
+      e.pan = 'PAN must be in ABCDE1234F format';
+    }
+
+    const startNum = parseInt(data.receiptStartNumber, 10);
+    if (isNaN(startNum) || startNum < 1) {
+      e.receiptStartNumber = 'Must be a positive number';
+    }
+
+    setErrors(e);
+    return Object.keys(e).length === 0;
   };
-  
-  export default FormContainer;
-  
+
+  /* ── Submit — generate & download PDF ── */
+  const handleFormSubmit = async (e) => {
+    e.preventDefault();
+    if (!validateForm(form)) return;
+
+    setLoading(true);
+    try {
+      const doc  = <GenerateDocument {...form} />;
+      const asPdf = pdf([]);
+      asPdf.updateContainer(doc);
+      const blob = await asPdf.toBlob();
+
+      /* Bug fix: replace ALL spaces, not just the first */
+      const filename = form.name.trim().replace(/\s+/g, '_').toLowerCase() + '_rent_receipts.pdf';
+      saveAs(blob, filename);
+
+      /* Reset after successful download */
+      setForm(EMPTY_FORM);
+      setErrors({});
+      localStorage.removeItem(LS_KEY);
+    } catch (err) {
+      console.error('PDF generation failed:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  /* ── Clear form ── */
+  const handleClearForm = (e) => {
+    e.preventDefault();
+    setForm(EMPTY_FORM);
+    setErrors({});
+    localStorage.removeItem(LS_KEY);
+  };
+
+  /* ── Derived data ── */
+  const monthCount = countMonths(form.startDate, form.endDate);
+
+  /* ── Render ── */
+  return (
+    <div className="glass-card fade-in-up">
+      <h2 className="card-title">Receipt Details</h2>
+
+      <form onSubmit={handleFormSubmit} noValidate>
+        <div className="form-section">
+
+          {/* ── Tenant & Rent ── */}
+          <div className="form-row">
+            <Input
+              inputtype="text"
+              name="name"
+              title="Tenant Full Name"
+              value={form.name}
+              placeholder="e.g. Rahul Sharma"
+              handle={handleInput}
+              error={errors.name}
+            />
+            <Input
+              inputtype="number"
+              name="rent"
+              title="Monthly Rent (₹)"
+              value={form.rent}
+              placeholder="e.g. 15000"
+              handle={handleInput}
+              error={errors.rent}
+            />
+          </div>
+
+          {/* ── Landlord ── */}
+          <div className="form-row">
+            <Input
+              inputtype="text"
+              name="owner"
+              title="Landlord Name"
+              value={form.owner}
+              placeholder="e.g. Priya Mehta"
+              handle={handleInput}
+              error={errors.owner}
+            />
+            <Input
+              inputtype="text"
+              name="pan"
+              title="Landlord PAN"
+              value={form.pan}
+              placeholder="e.g. ABCDE1234F"
+              handle={(e) => {
+                e.target.value = e.target.value.toUpperCase();
+                handleInput(e);
+              }}
+              error={errors.pan}
+              optional
+            />
+          </div>
+
+          {/* ── Payment details ── */}
+          <div className="form-row">
+            <Select
+              name="currency"
+              title="Currency"
+              value={form.currency}
+              handle={handleInput}
+              options={CURRENCY_OPTIONS}
+            />
+            <Select
+              name="paymentMode"
+              title="Payment Mode"
+              value={form.paymentMode}
+              handle={handleInput}
+              options={PAYMENT_OPTIONS}
+            />
+          </div>
+
+          {/* ── Address ── */}
+          <TextArea
+            name="address"
+            title="Rental Property Address"
+            value={form.address}
+            handle={handleInput}
+            placeholder="Full address of the rented property"
+            rows={2}
+            error={errors.address}
+          />
+
+          <div className="form-divider" />
+
+          {/* ── Date range & receipt number ── */}
+          <div className="form-row">
+            <Input
+              inputtype="date"
+              name="startDate"
+              title="Rent Start Date"
+              value={form.startDate}
+              placeholder=""
+              handle={handleInput}
+              error={errors.startDate}
+            />
+            <Input
+              inputtype="date"
+              name="endDate"
+              title="Rent End Date"
+              value={form.endDate}
+              placeholder=""
+              handle={handleInput}
+              error={errors.endDate}
+            />
+          </div>
+
+          <Input
+            inputtype="number"
+            name="receiptStartNumber"
+            title="Receipt Start Number"
+            value={form.receiptStartNumber}
+            placeholder="e.g. 1 (or 13 if continuing a contract)"
+            handle={handleInput}
+            error={errors.receiptStartNumber}
+          />
+
+          {/* ── Month count badge ── */}
+          {monthCount > 0 && (
+            <div className="receipt-count-badge">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                <line x1="16" y1="2" x2="16" y2="6"/>
+                <line x1="8"  y1="2" x2="8"  y2="6"/>
+                <line x1="3"  y1="10" x2="21" y2="10"/>
+              </svg>
+              {monthCount} receipt{monthCount !== 1 ? 's' : ''} will be generated
+            </div>
+          )}
+
+          {/* ── Actions ── */}
+          <div className="btn-row">
+            <Button
+              id="generate-pdf-btn"
+              title="Generate PDF"
+              type="primary"
+              loading={loading}
+            />
+            <Button
+              id="clear-form-btn"
+              title="Clear Form"
+              type="secondary"
+              action={handleClearForm}
+            />
+          </div>
+
+        </div>
+      </form>
+    </div>
+  );
+};
+
+export default FormContainer;

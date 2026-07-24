@@ -1,8 +1,9 @@
+// web-vitals v4: getFID removed (replaced by getINP — Interaction to Next Paint)
 const reportWebVitals = onPerfEntry => {
   if (onPerfEntry && onPerfEntry instanceof Function) {
-    import('web-vitals').then(({ getCLS, getFID, getFCP, getLCP, getTTFB }) => {
+    import('web-vitals').then(({ getCLS, getINP, getFCP, getLCP, getTTFB }) => {
       getCLS(onPerfEntry);
-      getFID(onPerfEntry);
+      getINP(onPerfEntry);
       getFCP(onPerfEntry);
       getLCP(onPerfEntry);
       getTTFB(onPerfEntry);

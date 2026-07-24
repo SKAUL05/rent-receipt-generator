@@ -1,108 +1,184 @@
-# Rent Receipt Generator
+# 🧾 Rent Receipt Generator
 
-[![GitHub license](https://img.shields.io/github/license/SKAUL05/rent-receipt-generator?logo=github)](https://github.com/SKAUL05/SKAUL05/blob/master/LICENSE) ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/SKAUL05/rent-receipt-generator?logo=react)
+[![GitHub license](https://img.shields.io/github/license/SKAUL05/rent-receipt-generator?logo=github)](https://github.com/SKAUL05/rent-receipt-generator/blob/master/LICENSE)
+![GitHub code size](https://img.shields.io/github/languages/code-size/SKAUL05/rent-receipt-generator?logo=react)
+[![GitHub issues](https://img.shields.io/github/issues/SKAUL05/rent-receipt-generator?logo=github)](https://github.com/SKAUL05/rent-receipt-generator/issues)
+![GitHub pull requests](https://img.shields.io/github/issues-pr/SKAUL05/rent-receipt-generator?color=blue&logo=github)
+[![Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?logo=vercel)](https://rent-receipt-generator.vercel.app/)
 
-### A [React](https://reactjs.org/) App to generate rent receipts online
+> **Generate professional monthly rent receipts as PDF — free, private, and instant.**
+>
+> 🔗 **Live demo:** [rent-receipt-generator.vercel.app](https://rent-receipt-generator.vercel.app/)
 
-![Form](https://raw.githubusercontent.com/SKAUL05/rent-receipt-generator/master/assets/rent_image.png)
+---
 
-> This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## ✨ Features
 
-> **Click [here](https://rent-receipt-generator.vercel.app/) for live demo.**
+| Feature | Description |
+|---------|-------------|
+| 📄 **PDF Generation** | Generates one receipt per month for the selected date range |
+| 👁️ **Live Preview** | Real-time PDF preview updates as you fill the form |
+| 🌓 **Dark / Light Mode** | Toggle with persistence via `localStorage` |
+| 💱 **Currency Support** | INR (default), USD, EUR, GBP, AED |
+| 🏦 **Payment Mode** | Cash, Cheque, UPI, Bank Transfer, NEFT/IMPS |
+| 🔢 **Receipt Numbering** | Set a custom start number (e.g. continue from #13) |
+| 💾 **Auto-Save** | Form data saved in `localStorage` and restored on reload |
+| ✅ **Validation** | Real-time field validation with shake animation and success icons |
+| 📱 **Responsive** | Two-column layout on desktop, single column on mobile |
+| 📊 **Analytics** | Vercel Analytics integrated for page-view tracking |
 
-### How to run?
+---
 
-- Clone the repository : `git clone https://github.com/SKAUL05/rent-receipt-generator/`
+## 🖼️ Preview
 
-- Run `yarn install`
+![Rent Receipt Generator UI](https://raw.githubusercontent.com/SKAUL05/rent-receipt-generator/master/assets/rent_image.png)
 
-- Run `npm run start`
+---
 
-- Open browser and go to `http://localhost:8080/`
+## 🚀 Getting Started
 
-## Contributing
+### Prerequisites
 
-[![GitHub issues](https://img.shields.io/github/issues/SKAUL05/rent-receipt-generator?logo=github)](https://github.com/SKAUL05/rent-receipt-generator/issues) ![GitHub pull requests](https://img.shields.io/github/issues-pr/SKAUL05/rent-receipt-generator?color=blue&logo=github)
+- [Node.js](https://nodejs.org/) v14+
+- npm v6+
 
-**1.** Fork [this](https://github.com/SKAUL05/rent-receipt-generator/) repository.
-Click on the <a href="https://github.com/SKAUL05/rent-receipt-generator/"><img src="https://img.icons8.com/ios/24/000000/code-fork.png"></a> symbol at the top right corner.
-
-**2.** Clone the forked repository.
+### Installation
 
 ```bash
-git clone https://github.com/<your-github-username>/rent-receipt-generator
+# 1. Clone the repository
+git clone https://github.com/SKAUL05/rent-receipt-generator.git
+cd rent-receipt-generator/receipt-generator
+
+# 2. Install dependencies
+npm install --legacy-peer-deps
+
+# 3. Start the development server
+npm start
 ```
 
-**3.** Navigate to the project directory.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-```bash
-cd receipt-generator
+---
+
+## 🏗️ Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Framework | [React 17](https://reactjs.org/) (functional components + hooks) |
+| Build Tool | [Create React App](https://create-react-app.dev/) + [CRACO](https://github.com/dilanx/craco) |
+| PDF Engine | [@react-pdf/renderer](https://react-pdf.org/) |
+| File Download | [file-saver](https://github.com/eligrey/FileSaver.js/) |
+| Styling | Vanilla CSS (custom design system — no frameworks) |
+| Fonts | [Google Fonts — Inter](https://fonts.google.com/specimen/Inter) |
+| Analytics | [@vercel/analytics](https://vercel.com/analytics) |
+| Hosting | [Vercel](https://vercel.com/) |
+
+---
+
+## 📁 Project Structure
+
+```
+receipt-generator/
+├── public/
+│   └── index.html              # App shell with Google Fonts
+├── src/
+│   ├── index.css               # Full design system (CSS variables, dark mode, animations)
+│   ├── App.js                  # Root layout — two-column, dark mode state
+│   ├── components/
+│   │   ├── Header.js           # Brand header with dark/light mode toggle
+│   │   ├── Input.js            # Styled input with validation icons
+│   │   ├── TextArea.js         # Styled textarea
+│   │   ├── Button.js           # Button with loading spinner
+│   │   ├── Select.js           # Styled dropdown
+│   │   ├── PreviewPanel.js     # Live PDF preview panel
+│   │   ├── GenerateDocument.js # PDF Document wrapper
+│   │   └── GenerateTable.js    # PDF receipt layout (one per month)
+│   └── containers/
+│       └── FormContainer.js    # Form state, validation, localStorage, PDF generation
+└── package.json
 ```
 
-**4.** Create a new branch.
+---
+
+## 📄 How the PDF Works
+
+1. User fills in: **tenant name**, **landlord name**, **monthly rent**, **property address**, **date range**, and optional fields (PAN, currency, payment mode, receipt start number).
+2. The app calculates the number of months in the range.
+3. On submit, `@react-pdf/renderer` generates one styled receipt block per month on an A4 page.
+4. The PDF is downloaded via `file-saver` as `<tenant_name>_rent_receipts.pdf`.
+
+### Receipt fields
+
+Each receipt contains:
+- Receipt number (e.g. `#001`), month, and year
+- Full acknowledgement sentence with tenant name, amount, address, and period
+- Amount box with currency symbol and payment mode
+- Signature line with landlord name and PAN (if provided)
+- "✓ Received" stamp
+
+---
+
+## 🧾 What is HRA?
+
+**House Rent Allowance (HRA)** is a component of an employee's salary in India. Rent receipts are required to claim HRA tax exemption under Section 10(13A) of the Income Tax Act. A receipt is mandatory if annual rent exceeds ₹1,00,000 and the landlord's PAN must be quoted.
+
+> 📖 [Learn more about HRA on ClearTax](https://cleartax.in/s/hra-house-rent-allowance)
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Here's how:
+
+**1.** Fork the repository and clone it locally:
 
 ```bash
-git checkout -b <your_branch_name>
+git clone https://github.com/<your-username>/rent-receipt-generator.git
+cd rent-receipt-generator/receipt-generator
+npm install --legacy-peer-deps
 ```
 
-**5.** Make changes in source code.
-
-**6.** Stage your changes and commit
+**2.** Create a feature branch:
 
 ```bash
-#Add changes to Index
+git checkout -b feat/your-feature-name
+```
+
+**3.** Make your changes, then stage and commit:
+
+```bash
 git add .
-
-#Commit to the local repo
-git commit -m "<your_commit_message>"
+git commit -m "feat: describe your change"
 ```
 
-> CAUTION: Synch up your local repo with [original repo](https://github.com/SKAUL05/rent-receipt-generator) (Upstream) before pushing your commits.
-> This avoids unnecessary conflicts during the merge.
-
-> NOTE: You can do so by adding a [remote handler](https://www.atlassian.com/de/git/tutorials/syncing) reference to the original repo and pull the changes from the respective branch.
-> Resolve the [merge-conflicts](https://www.atlassian.com/de/git/tutorials/using-branches/merge-conflicts) if any.
-
-> ```bash
-> #Add upstream repo
-> git remote add upstream https://github.com/SKAUL05/rent-receipt-generator.git
->
-> #Disable accidental push to the upstream
-> git remote set-url --push upstream DISABLE
->
-> #List the remote repo and fetch references
-> git remote -v && git fetch upstream
->
-> #Check for any new commits in the upstream branch
-> git log HEAD..upstream/master #No output indicates, upstream has not moved ahead
->
-> #See the patch difference between local and upstream branch
-> git diff -p HEAD..upstream/master
->
-> ```
-
-> CAUTION: If the upstream has moved ahead, rebase your commit and resolve conflicts if any. [Skip otherwise]
->
-> ```bash
-> git rebase upstream/master
-> ```
-
-**7.** Push your local commits to the remote repo.
+**4.** Sync with upstream before pushing (avoids conflicts):
 
 ```bash
-git push -u origin <your_branch_name>
+git remote add upstream https://github.com/SKAUL05/rent-receipt-generator.git
+git fetch upstream
+git rebase upstream/main
 ```
 
-**8.** Create a [PR](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request) !
+**5.** Push and open a Pull Request:
 
-**9.** **Congratulations!** Sit and relax, you've made your contribution to [Rent Receipt Generator](https://rent-receipt-generator.vercel.app/) project.
+```bash
+git push -u origin feat/your-feature-name
+```
 
-### More about HRA
+Then open a PR against the `main` branch on GitHub.
 
-> Click [here](https://cleartax.in/s/hra-house-rent-allowance) to know more in detail about HRA
+---
 
-### Thanks!
+## 📜 License
 
-Glad to see here! Show some love by [starring](https://github.com/SKAUL05/rent-receipt-generator) this repository.
+This project is licensed under the [GPL-3.0 License](LICENSE).
+
+---
+
+## 🙌 Author
+
+Made with ❤️ by [Sarath Kaul](https://github.com/SKAUL05/)
 
 [![Sarath Kaul](https://img.shields.io/badge/Author-@SKAUL05-teal.svg?colorA=grey&colorB=blue&logo=github)](https://github.com/SKAUL05/)
+
+If you found this useful, please ⭐ [star the repository](https://github.com/SKAUL05/rent-receipt-generator) — it really helps!
