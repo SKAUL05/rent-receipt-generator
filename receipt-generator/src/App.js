@@ -1,17 +1,39 @@
+import React, { useState, useEffect } from 'react';
 import Header from "./components/Header";
 import FormContainer from "./containers/FormContainer";
+import PreviewPanel from "./components/PreviewPanel";
+import { Analytics } from '@vercel/analytics/react';
+import "./index.css";
 
 function App() {
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem('rrg_theme') || 'light';
+  });
+
+  const [formData, setFormData] = useState(null);
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('rrg_theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(prev => prev === 'light' ? 'dark' : 'light');
+  };
+
   return (
-    <div className="container" style={{padding:10, display:'flex'}}>
-      <div className="card bg-light border-dark w-100">
-        <div className="card-body">
-        <Header/>
-        <FormContainer />
+    <div className="app-wrapper">
+      <Header theme={theme} onToggleTheme={toggleTheme} />
+      <main className="app-main">
+        <div className="app-columns">
+          <FormContainer onFormChange={setFormData} />
+          <div className="preview-sticky">
+            <PreviewPanel formData={formData} />
+          </div>
         </div>
-      </div>
+      </main>
+      <Analytics />
     </div>
-      
   );
 }
 
