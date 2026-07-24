@@ -2,40 +2,31 @@
   "name": "receipt-generator",
   "version": "0.2.0",
   "private": true,
+  "type": "module",
   "engines": {
-    "node": ">=24.0.0",
+    "node": "24",
     "npm": ">=10.0.0"
   },
   "dependencies": {
-    "@craco/craco": "^7.1.0",
     "@react-pdf/renderer": "^4.5.1",
+    "@vercel/analytics": "^1.5.0",
+    "file-saver": "^2.0.5",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "web-vitals": "^4.2.4"
+  },
+  "devDependencies": {
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
-    "@vercel/analytics": "^1.5.0",
-    "assert": "^2.1.0",
-    "browserify-zlib": "^0.2.0",
-    "buffer": "^6.0.3",
-    "file-saver": "^2.0.5",
-    "process": "^0.11.10",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-scripts": "5.0.1",
-    "stream-browserify": "^3.0.0",
-    "util": "^0.12.5",
-    "web-vitals": "^4.2.4"
+    "@vitejs/plugin-react": "^4.5.2",
+    "vite": "^6.3.5",
+    "vite-plugin-node-polyfills": "^0.28.0"
   },
   "scripts": {
-    "start": "craco start",
-    "build": "craco build",
-    "test": "craco test",
-    "eject": "craco eject"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
+    "start": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
   },
   "browserslist": {
     "production": [
